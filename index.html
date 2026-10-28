@@ -47,6 +47,13 @@ canvas{width:100%;height:clamp(300px,52vh,640px);display:block;direction:ltr}
 .cp{width:100%;margin-top:8px;padding:10px;border:1px solid var(--acc);background:none;color:var(--acc);border-radius:8px;font:inherit}
 details{margin-top:8px;font-size:14px}details input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);margin:6px 0;direction:ltr}
 main>p.mute{color:#e8f0ff}
+.hm{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:3px;font-size:13px;align-items:center}
+.hc{text-align:center;padding:5px 0;border-radius:6px;color:#fff;font-weight:700}.hu{background:var(--up)}.hd{background:var(--dn)}.hn{background:#8a97a8}
+#cv2{height:150px;margin-top:10px}
+.fin{border:3px solid #2f6bd8;background:linear-gradient(135deg,rgba(47,107,216,.16),rgba(47,107,216,.05))}
+.redline{margin:10px 0;padding:10px;border-top:3px solid #d32f2f;border-bottom:3px solid #d32f2f;color:#d32f2f;font-weight:800;font-size:17px;text-align:center}
+.fr{padding:6px 0;border-bottom:1px solid var(--line)}
+.wk input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);margin:6px 0;direction:ltr}
 .cols{columns:330px;column-gap:20px}.ind{break-inside:avoid;padding:5px 0;border-bottom:1px solid var(--line)}.ind .mute{margin-top:-2px}
 .zin{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:14px}.zin input{width:72px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr}
 </style>
@@ -69,12 +76,18 @@ main>p.mute{color:#e8f0ff}
 <div class="card" id="zzc"><p class="verdict">ZigZag: الكسور والاتجاه</p>
 <div class="zin"><span>نسبة التغير للمضاربة %</span><input id="zs" type="number" step="0.5" inputmode="decimal"><span>للطويل %</span><input id="zl" type="number" step="0.5" inputmode="decimal"></div>
 <div id="zzb"><div class="mute">جاري القراءة...</div></div></div>
+<div class="card wide" id="heat"><p class="verdict">خريطة التوافق: كل المؤشرات مع بعضها</p><div id="heatb"><div class="mute">جاري الحساب...</div></div><canvas id="cv2"></canvas><div id="heatt"></div></div>
+<div class="card" id="srsic"><p class="verdict">SRSI عبر الأطر</p><div class="mute">جاري الحساب...</div></div>
 <div class="card wide" id="all"><div class="mute">جاري التحليل...</div></div>
 <div class="card" id="flowc"><p class="verdict">تتبع السيولة اللحظي</p><div class="mute">جاري قراءة الصفقات...</div></div>
+<div class="card wk" id="whc"><p class="verdict">محافظ الحيتان</p><div id="whb"><div class="mute">جاري القراءة...</div></div>
+<details><summary>مفتاح Whale Alert المجاني (لتتبع محافظ أي عملة)</summary><div class="mute">أنشئ مفتاحاً مجانياً من whale-alert.io. يُحفظ على هاتفك فقط. يغطي العملات الكبرى ولا يغطي كل التوكنات.</div><input id="wak" type="password" placeholder="مفتاح Whale Alert"><div class="ai2"><button id="waok">حفظ</button><button id="wadel">حذف</button></div></details></div>
 <div class="card" id="newsc"><p class="verdict">السوق والأخبار</p><div class="mute">جاري التحميل...</div></div>
+<div class="card wide" id="evc"><p class="verdict">الأحداث الكبرى والاقتصاد</p></div>
 <div class="card wide" id="hz"><div class="mute">جاري حساب الأفق الزمني...</div></div>
 <div class="card sum" id="sum"><div id="sumTop"><div class="mute">جاري جمع القراءات...</div></div>
 <input id="cap" type="number" inputmode="decimal" placeholder="رأس مالك بالدولار (لحساب حجم الصفقة)"><div id="psz" class="mute"></div></div>
+<div class="card fin wide" id="final"><div class="mute">جاري بناء الحكم النهائي...</div></div>
 <div class="card" id="ai"><p class="verdict">ناقش مع الذكاء الاصطناعي</p>
 <div id="chat"><div class="msg a">اسألني عن أي قراءة في هذه الصفحة: لماذا الإشارة هكذا، أين الوقف، ماذا أنتظر. أرى اللقطة الحالية للعملة المفتوحة.</div></div>
 <div class="chips"><button data-report="1">تقرير شامل (أخبار + حيتان)</button><button data-q="هل أدخل الآن؟ ولماذا؟">هل أدخل الآن؟</button><button data-q="اشرح لي الأسباب بكلمات بسيطة">اشرح الأسباب</button><button data-q="أين أضع وقف الخسارة والأهداف؟">الوقف والأهداف</button><button data-q="ما أكبر خطر في هذه الصفقة؟">أكبر خطر</button></div>
@@ -195,7 +208,7 @@ async function mtf(){
  const g=async(i,sy=sym)=>(await api(`/v5/market/kline?category=spot&symbol=${sy}&interval=${i}&limit=300`)).list.reverse().map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}));
  try{MT.a=await g('15');MT.b=await g('60');MT.c=await g('240');MT.d=await g('D')}catch(e){}
  if(sym!=='BTCUSDT'){try{MT.btc=[calc(await g('60','BTCUSDT'),1),calc(await g('240','BTCUSDT'),1)]}catch(e){}}
- mtfRender();try{zzRender()}catch(e){}try{sumRender()}catch(e){}
+ mtfRender();try{zzRender()}catch(e){}slow(true);try{sumRender()}catch(e){}
 }
 function mtfRender(){
  if(!MT.a||!MT.b||!MT.c){$('mtf').innerHTML='<div class="mute">جاري قراءة الأطر 15 دقيقة والساعة و4 ساعات...</div>';return}
@@ -268,6 +281,11 @@ function snap(){
  if(G.fl)o.push(`تدفق الصفقات الكبيرة: ${G.fl.sig=='up'?'شراء مسيطر':G.fl.sig=='dn'?'بيع مسيطر':'متوازن'} (شراء عدواني ${(G.fl.ratio*100).toFixed(0)}%)`);
  if(CX.fg)o.push('الخوف والطمع: '+CX.fg.v+' '+CX.fg.c);
  if(G.timeTxt)o.push(G.timeTxt);
+ if(G.srsi)o.push(`SRSI: ${G.srsi.up} أطر صاعدة / ${G.srsi.dn} هابطة من ${G.srsi.n}`);
+ if(G.conf!=null)o.push('خريطة التوافق الكلية: '+(G.conf*100).toFixed(0)+'%');
+ if(G.wh&&G.wh.mode==='wa')o.push(`محافظ الحيتان: إيداع في المنصات $${f(G.wh.inn)} وسحب $${f(G.wh.outn)}`);
+ if(CX.macro)o.push('أخبار الاقتصاد والجيوسياسة: حرب '+CX.macro.war+' عنواناً، نبرة '+CX.macro.score.toFixed(2)+(CX.evRisk==2?' | اليوم حدث كبير (قرار الفيدرالي أو انتهاء عقود)':''));
+ if(G.finTxt)o.push('الحكم النهائي: '+G.finTxt);
  if(G.hzTxt)o.push('الآفاق الزمنية: '+G.hzTxt);
  o.push('خلاصة التطبيق: '+$('sumTop').textContent.replace(/\s+/g,' ').slice(0,400));
  return o.join('\n');
@@ -373,6 +391,9 @@ function allRender(X){
  if(G.A){const s3=G.A.s+G.B.s+G.C.s;add('الأطر الثلاثة (15د / ساعة / 4س)',s3>=3?1:s3<=-3?-1:0,`${sgn(G.A.s)} / ${sgn(G.B.s)} / ${sgn(G.C.s)}`,'نتيجة كل إطار من 8. المجموع '+sgn(s3)+'.')}
  if(MT.btc&&MT.btc[0]&&MT.btc[1]){const bs=MT.btc[0].s+MT.btc[1].s;add('سياق السوق (BTC)',bs>=3?1:bs<=-3?-1:0,`ساعة ${sgn(MT.btc[0].s)} / 4س ${sgn(MT.btc[1].s)}`,'العملات البديلة تتبع البيتكوين غالباً.')}
  if(G.fl)add('تدفق الصفقات الكبيرة (حيتان المنصة)',G.fl.sig=='up'?1:G.fl.sig=='dn'?-1:0,G.fl.sig=='up'?'شراء كبير مسيطر':G.fl.sig=='dn'?'بيع كبير مسيطر':'متوازن',`نسبة الشراء العدواني ${(G.fl.ratio*100).toFixed(0)}% وصافي الصفقات الكبيرة ${G.fl.lnet>0?'شراء':'بيع'}.`);
+ if(G.srsi)add('SRSI (7 أطر زمنية)',G.srsi.score>.3?1:G.srsi.score<-.3?-1:0,`${G.srsi.up} صاعد / ${G.srsi.dn} هابط`,'توافق انعكاس الزخم بين الأطر.');
+ if(G.conf!=null)add('خريطة التوافق الكلية',G.conf>.25?1:G.conf<-.25?-1:0,(G.conf*100).toFixed(0)+'%','متوسط أصوات كل المؤشرات عبر 4 أطر.');
+ if(G.wh&&G.wh.mode==='wa')add('محافظ الحيتان (Whale Alert)',G.wh.score>.25?1:G.wh.score<-.25?-1:0,G.wh.score>.25?'سحب من المنصات':G.wh.score<-.25?'إيداع في المنصات':'متوازن','سحب الحيتان من المنصات تجميع، وإيداعها فيها ضغط بيع.');
  const bull=items.filter(x=>x[1]>0).length,bear=items.filter(x=>x[1]<0).length,neu=items.length-bull-bear,N=items.length,net=(bull-bear)/N*100;
  const lab=net>=40?['صاعد بقوة','up']:net>=15?['ميل صاعد','up']:net<=-40?['هابط بقوة','dn']:net<=-15?['ميل هابط','dn']:['محايد',''];
  // مستويات السعر
@@ -403,7 +424,8 @@ function allRender(X){
  try{horizonRender()}catch(e){}
  try{sumRender()}catch(e){}
 }
-let CX={},NEWS=[];
+let CX={},NEWS=[],MAC=[],FED=[];
+const CATS=[['حرب وجيوسياسة',['war','missile','attack','strike','sanction','invasion','ceasefire','ukraine','russia','iran','israel','gaza','taiwan','military']],['الفيدرالي والفائدة',['fed ','federal reserve','fomc','rate hike','rate cut','powell','warsh','interest rate']],['تضخم واقتصاد',['inflation','cpi','jobs','payroll','gdp','recession','unemployment','tariff']],['تنظيم وقانون',['sec ','regulation','lawsuit','ban','etf','approval']],['اختراق وأمان',['hack','exploit','breach','stolen']]];
 async function kl(i,sy){return (await api(`/v5/market/kline?category=spot&symbol=${sy}&interval=${i}&limit=300`)).list.reverse().map(x=>({t:+x[0],o:+x[1],h:+x[2],l:+x[3],c:+x[4],v:+x[5]}))}
 function volOf(Kx){const r=[];for(let i=1;i<Kx.length;i++)r.push(Math.log(Kx[i].c/Kx[i-1].c));const m=r.reduce((a,b)=>a+b,0)/r.length;return Math.sqrt(r.reduce((a,b)=>a+(b-m)*(b-m),0)/(r.length-1))}
 const Phi=x=>{const t=1/(1+.2316419*Math.abs(x)),d=.3989423*Math.exp(-x*x/2),p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p};
@@ -443,7 +465,7 @@ function flowRender(){
  try{sumRender()}catch(e){}
 }
 /* ===== السوق والأخبار ===== */
-const POS=['surge','rally','gain','approve','inflow','bull','record','adopt','partnership','upgrade','breakout','soar','jump','launch','win'],NEG=['crash','drop','hack','exploit','ban','lawsuit','sues','liquidat','sell-off','selloff','plunge','fraud','bear','outflow','fine','delay','fall','slump','warn','probe'];
+const POS=['surge','rally','gain','approve','inflow','bull','record','adopt','partnership','upgrade','breakout','soar','jump','launch','win'],NEG=['crash','drop','hack','exploit','ban','lawsuit','sues','liquidat','sell-off','selloff','plunge','fraud','bear','outflow','fine','delay','fall','slump','warn','probe','war','attack','missile','sanction','recession','tariff','crisis'];
 const sentOf=t=>{t=t.toLowerCase();let s=0;POS.forEach(w=>{if(t.includes(w))s++});NEG.forEach(w=>{if(t.includes(w))s--});return s>0?1:s<0?-1:0};
 async function ctx(){
  const me=sym;
@@ -451,9 +473,13 @@ async function ctx(){
  try{const j=await(await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN')).json();NEWS=(j.Data||[]).slice(0,50)}catch(e){}
  try{const sk=await kl('60',me),bk=me==='BTCUSDT'?null:await kl('60','BTCUSDT'),ek=me==='ETHUSDT'?null:await kl('60','ETHUSDT');
   CX.cb=bk?corr(sk,bk):null;CX.ce=ek?corr(sk,ek):null;CX.eth=ek?[calc(ek,1),calc(await kl('240','ETHUSDT'),1)]:null}catch(e){}
+ try{const q=encodeURIComponent('("federal reserve" OR inflation OR war OR sanctions OR tariffs OR "interest rates" OR recession) sourcelang:english');const j=await(await fetch(`https://api.gdeltproject.org/api/v2/doc/doc?query=${q}&mode=artlist&maxrecords=40&format=json&sort=datedesc&timespan=24h`)).json();MAC=(j.articles||[]).map(a=>({title:a.title||'',src:a.domain||''}))}catch(e){}
+ try{const j=await(await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://www.federalreserve.gov/feeds/press_monetary.xml'))).json();FED=(j.items||[]).slice(0,3).map(x=>({title:x.title,t:x.pubDate}))}catch(e){}
+ try{CX.k12=await kl('720',me)}catch(e){CX.k12=null}try{CX.kw=await kl('W',me)}catch(e){CX.kw=null}try{CX.km=await kl('M',me)}catch(e){CX.km=null}
+ {const all=MAC.concat(NEWS.map(n=>({title:n.title||''}))),cnt={};CATS.forEach(([nm,ws])=>{cnt[nm]=all.filter(a=>{const t=(a.title||'').toLowerCase();return ws.some(w=>t.includes(w))}).length});CX.macro={cnt,total:all.length,score:MAC.length?MAC.reduce((s,a)=>s+sentOf(a.title),0)/MAC.length:0,war:cnt['حرب وجيوسياسة']}}
  const base=me.replace('USDT',''),sp=NEWS.filter(n=>(n.categories||'').split('|').includes(base)),avg=a=>a.length?a.reduce((s,n)=>s+sentOf(n.title||''),0)/a.length:0;
  CX.ns=avg(NEWS);CX.cs=sp.length?avg(sp):null;CX.sp=sp;
- ctxRender();try{horizonRender()}catch(e){}
+ ctxRender();try{horizonRender()}catch(e){}evRender();slow(true);
 }
 function ctxRender(){
  const base=sym.replace('USDT',''),o=[],bt=MT.btc,eth=CX.eth,vs=(a,b)=>a&&b?`ساعة ${sgn(a.s)} / 4س ${sgn(b.s)}`:'-';
@@ -490,6 +516,7 @@ function horizonRender(){
   const zd=zzInfo(Kd,ZLg);if(zd){if(zd.lh)pool.push([zd.lh.p,'قمة ZigZag يومية']);if(zd.ll)pool.push([zd.ll.p,'قاع ZigZag يومي']);dB+=zd.tr.startsWith('صاعد')?.5:zd.tr.startsWith('هابط')?-.5:0}
   dB+=last>e200?.5:-.5;dl=clusterLv(pool)}
  G.dBias=dB;
+ G.pk={};
  const HZ=[['ساعة',1],['4 ساعات',4],['8 ساعات',8],['يوم',24],['يومان',48],['أسبوع',168],['شهر',720],['سنة',8760]],lvS=G.cl2||[],out=[],tx=[];
  const pc=p=>(p/last-1)*100,sp=c=>f(c.p)+' ('+(pc(c.p)>0?'+':'')+pc(c.p).toFixed(1)+'%)';
  HZ.forEach(([nm,h])=>{
@@ -497,7 +524,7 @@ function horizonRender(){
   const ups=lv.filter(c=>c.p>last*1.002).sort((x,y)=>x.p-y.p),dns=lv.filter(c=>c.p<last*.998).sort((x,y)=>y.p-x.p);
   const pick=(a,sg)=>{if(!a.length)return {p:last*Math.exp(sg*sT),src:['إسقاط التذبذب'],n:1};const w=a.filter(c=>Math.abs(Math.log(c.p/last))<=1.5*sT);return w.length?w[w.length-1]:a[0]};
   const u=pick(ups,1),d=pick(dns,-1),pr=(c,sg)=>Math.max(.01,Math.min(.97,2*(1-Phi(Math.abs(Math.log(c.p/last))/sT))*(1+.35*b*sg)));
-  const fav=b>=.12?'up':b<=-.12?'dn':'',pu=pr(u,1),pd=pr(d,-1);
+  const fav=b>=.12?'up':b<=-.12?'dn':'',pu=pr(u,1),pd=pr(d,-1);G.pk[h]={u,d,pu,pd,b,un:ups[0],dn:dns[0]};
   tx.push(`${nm}: ${fav=='up'?'صعود':fav=='dn'?'هبوط':'تذبذب'} | صعود ${f(u.p)} (${(pu*100).toFixed(0)}%) | هبوط ${f(d.p)} (${(pd*100).toFixed(0)}%)`);
   out.push(`<div class="ind"><div class="kv"><span><b>خلال ${nm}</b></span><b class="${fav}">${fav=='up'?'الأرجح صعود ▲':fav=='dn'?'الأرجح هبوط ▼':'الأرجح تذبذب ●'}</b></div>
   <div class="kv"><span>النطاق المتوقع (≈68%)</span><b>${f(last*Math.exp(-sT))} – ${f(last*Math.exp(sT))}</b></div>
@@ -521,10 +548,164 @@ function horizonRender(){
  <div class="cols">${out.join('')}</div>
  <p class="mute">كيف تُقرأ: النطاق والاحتمالات محسوبة من تذبذب العملة التاريخي (≈68% = انحراف معياري واحد) مع ميل الاتجاه من المؤشرات والسيولة، والمستويات من فيبوناتشي وZigZag والتصفيات. هي احتمالات لا تنبؤ، فالأخبار المفاجئة تغيّر كل شيء، والأفق السنوي واسع جداً فاعتمد فيه على الاتجاه الكبير فقط. تحركات المحافظ الكبيرة على السلسلة والأخبار الحية تحتاج زر "تقرير شامل".</p>`;
 }
-function report(){ask('أعدّ تقريراً موجزاً ومفصلاً بالعربية عن '+sym+'. ابحث في الويب عن آخر الأخبار وتحركات المحافظ الكبيرة (Whale) وتدفقات صناديق ETF والعوامل الكلية (الفيدرالي والتضخم) التي تؤثر عليها وعلى BTC وETH، ثم اربطها بلقطة التطبيق. أعطني لكل أفق (ساعة، 4 ساعات، 8 ساعات، يوم، يومان، أسبوع، شهر، سنة): الاتجاه الأرجح وسعر الصعود والهبوط المحتملين ونسبة احتمال تقريبية. اذكر مصادر الأخبار وتواريخها، وصرّح بما لا تستطيع تأكيده.',{search:true})}
+function report(){ask('أعدّ تقريراً موجزاً ومفصلاً بالعربية عن '+sym+'. ابحث في الويب عن آخر الأخبار وتحركات المحافظ الكبيرة (Whale) وتدفقات صناديق ETF والعوامل الكلية (اجتماعات الفيدرالي والتضخم والحروب والعقوبات والأحداث الجيوسياسية) التي تؤثر عليها وعلى BTC وETH، ثم اربطها بلقطة التطبيق. أعطني لكل أفق (ساعة، 4 ساعات، 8 ساعات، يوم، يومان، أسبوع، شهر، سنة): الاتجاه الأرجح وسعر الصعود والهبوط المحتملين ونسبة احتمال تقريبية. اذكر مصادر الأخبار وتواريخها، وصرّح بما لا تستطيع تأكيده.',{search:true})}
+/* ===== SRSI ===== */
+function rsiS(c,n=14){const o=new Array(c.length).fill(null);if(c.length<n+2)return o;let g=0,l=0;for(let i=1;i<=n;i++){const d=c[i]-c[i-1];d>=0?g+=d:l-=d}g/=n;l/=n;o[n]=l?100-100/(1+g/l):100;for(let i=n+1;i<c.length;i++){const d=c[i]-c[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n;o[i]=l?100-100/(1+g/l):100}return o}
+function srsiS(c){const r=rsiS(c),n=r.length,st=new Array(n).fill(null);
+ for(let i=27;i<n;i++){const w=r.slice(i-13,i+1);if(w.some(x=>x==null))continue;const mn=Math.min(...w),mx=Math.max(...w);st[i]=mx==mn?50:(r[i]-mn)/(mx-mn)*100}
+ const sm=a=>a.map((x,i)=>i>=2&&a[i]!=null&&a[i-1]!=null&&a[i-2]!=null?(a[i]+a[i-1]+a[i-2])/3:null),k=sm(st);return {k,d:sm(k)}}
+function srsiOf(Kx){if(!Kx||Kx.length<45)return null;const s=srsiS(Kx.map(x=>x.c)),i=Kx.length-1,k=s.k[i],d=s.d[i];return k==null||d==null?null:{k,d}}
+function srsiRender(){
+ const fr=[['15 دقيقة',MT.a],['ساعة',MT.b],['4 ساعات',MT.c],['12 ساعة',CX.k12],['يومي',MT.d],['أسبوعي',CX.kw],['شهري',CX.km]],rows=[];let up=0,dn=0,n=0,bigOB=false,bigOS=false;
+ fr.forEach(([nm,Kx],ix)=>{const q=srsiOf(Kx);
+  if(!q){rows.push(`<div class="kv"><span>${nm}</span><b class="mute">بيانات غير كافية</b></div>`);return}
+  n++;const v=q.k>q.d?1:-1;v>0?up++:dn++;const z=q.k>80?'تشبّع شراء':q.k<20?'تشبّع بيع':'منطقة وسطى';
+  if(ix>=3&&q.k>80)bigOB=true;if(ix>=3&&q.k<20)bigOS=true;
+  rows.push(`<div class="kv"><span>${nm}</span><b class="${v>0?'up':'dn'}">${v>0?'▲ صاعد':'▼ هابط'} · K ${q.k.toFixed(0)} / D ${q.d.toFixed(0)} · ${z}</b></div>`)});
+ const sc=n?(up-dn)/n:0;G.srsi={score:sc,up,dn,n,bigOB,bigOS};
+ const al=n&&up>=Math.ceil(n*.75)?['توافق صعودي','up']:n&&dn>=Math.ceil(n*.75)?['توافق هبوطي','dn']:['أطر متضاربة',''];
+ const tip=al[1]=='up'?(bigOB?'توافق صعودي لكن الأطر الكبيرة في تشبّع شراء: احذر تراجعاً قريباً.':'توافق صعودي والأطر الكبيرة ليست في تشبّع شراء: دعم للدخول.'):al[1]=='dn'?(bigOS?'هبوط مع تشبّع بيع في الأطر الكبيرة: ارتداد محتمل قريب، لا تبع متأخراً.':'توافق هبوطي: لا تشترِ الآن.'):'لا توافق: انتظر انعطاف الأطر الكبيرة (12 ساعة واليومي).';
+ $('srsic').innerHTML=`<p class="verdict ${al[1]}">SRSI: ${al[0]} (${up} صاعد / ${dn} هابط من ${n})</p>${rows.join('')}<p><b>${tip}</b></p><p class="mute">K فوق D = انعطاف صعودي، وتحت 20 تشبّع بيع، وفوق 80 تشبّع شراء. الأطر المفقودة لا تتوفر لها شموع كافية.</p>`;
+}
+/* ===== خريطة التوافق ===== */
+function fv(Kx,pct){
+ const n=Kx.length;if(n<60)return null;
+ const c=Kx.map(x=>x.c),h=Kx.map(x=>x.h),l=Kx.map(x=>x.l),v=Kx.map(x=>x.v),last=c[n-1],e20=emaA(c,20)[n-1],e50=emaA(c,50)[n-1];
+ const m12=emaA(c,12),m26=emaA(c,26),mc=m12.map((x,i)=>x-m26[i]),sg=emaA(mc,9),r=rsi(c),sr=srsiOf(Kx);
+ let mf=0,vs=0;for(let i=n-20;i<n;i++){const g=h[i]-l[i];mf+=(g?((c[i]-l[i])-(h[i]-c[i]))/g:0)*v[i];vs+=v[i]}const cmf=vs?mf/vs:0;
+ let pos=0,neg=0;for(let i=n-14;i<n;i++){const a=(h[i]+l[i]+c[i])/3,b=(h[i-1]+l[i-1]+c[i-1])/3;a>b?pos+=a*v[i]:neg+=a*v[i]}const mfi=neg?100-100/(1+pos/neg):100;
+ let od=0;for(let i=n-20;i<n;i++)od+=c[i]>c[i-1]?v[i]:c[i]<c[i-1]?-v[i]:0;
+ const pv=Kx.slice(-21,-1),dh=Math.max(...pv.map(k=>k.h)),dl=Math.min(...pv.map(k=>k.l)),zi=zzInfo(Kx,pct);
+ return [['EMA',e20>e50?1:-1],['السعر/EMA50',last>e50?1:-1],['MACD',mc[n-1]>sg[n-1]?1:-1],['RSI',r>55?1:r<45?-1:0],['SRSI',sr?(sr.k>sr.d?1:-1):0],['CMF',cmf>.05?1:cmf<-.05?-1:0],['MFI',mfi>55?1:mfi<45?-1:0],['OBV',od>0?1:-1],['ZigZag',zi?(zi.cl=='up'?1:zi.cl=='dn'?-1:zi.tr.startsWith('صاعد')?1:zi.tr.startsWith('هابط')?-1:0):0],['Donchian',last>dh?1:last<dl?-1:0]];
+}
+function confS(Kx){
+ const n=Kx.length,c=Kx.map(x=>x.c),v=Kx.map(x=>x.v),e20=emaA(c,20),e50=emaA(c,50),m12=emaA(c,12),m26=emaA(c,26),mc=m12.map((x,i)=>x-m26[i]),sg=emaA(mc,9),r=rsiS(c),s=srsiS(c);
+ const mfv=Kx.map(k=>{const g=k.h-k.l;return (g?((k.c-k.l)-(k.h-k.c))/g:0)*k.v}),obv=[0];for(let i=1;i<n;i++)obv.push(obv[i-1]+(c[i]>c[i-1]?v[i]:c[i]<c[i-1]?-v[i]:0));
+ const out=new Array(n).fill(null);
+ for(let i=40;i<n;i++){let m=0,vs=0;for(let j=i-19;j<=i;j++){m+=mfv[j];vs+=v[j]}const cmf=vs?m/vs:0;
+  out[i]=((e20[i]>e50[i]?1:-1)+(c[i]>e50[i]?1:-1)+(mc[i]>sg[i]?1:-1)+(r[i]>55?1:r[i]<45?-1:0)+(s.d[i]!=null?(s.k[i]>s.d[i]?1:-1):0)+(cmf>.05?1:cmf<-.05?-1:0)+(obv[i]>obv[i-20]?1:-1))/7}
+ return out;
+}
+function drawConf(cs){
+ const cv=$('cv2'),d=devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;cv.width=w*d;cv.height=h*d;const g=cv.getContext('2d');g.scale(d,d);
+ const N=Math.min(110,K.length),s0=K.length-N,bw=w/N,mid=h/2,css=getComputedStyle(document.documentElement),col=x=>css.getPropertyValue(x).trim();
+ g.strokeStyle=col('--line');g.beginPath();g.moveTo(0,mid);g.lineTo(w,mid);g.stroke();
+ for(let i=0;i<N;i++){const v=cs[s0+i];if(v==null)continue;g.fillStyle=v>=0?col('--up'):col('--dn');g.globalAlpha=.75;const hh=Math.abs(v)*(mid-4);g.fillRect(i*bw+1,v>=0?mid-hh:mid,Math.max(1,bw-2),hh)}
+ g.globalAlpha=1;const cl=K.slice(s0).map(k=>k.c),mn=Math.min(...cl),mx=Math.max(...cl);
+ g.strokeStyle='#2f6bd8';g.lineWidth=2;g.beginPath();cl.forEach((p,i)=>{const y=h-4-(p-mn)/(mx-mn||1)*(h-8);i?g.lineTo(i*bw+bw/2,y):g.moveTo(i*bw+bw/2,y)});g.stroke();
+ g.fillStyle=col('--mute');g.font='11px sans-serif';g.fillText('أعمدة: توافق المؤشرات (أخضر صاعد، أحمر هابط)  |  الخط الأزرق: السعر',6,12);
+}
+function heatRender(){
+ const fr=[['15د',MT.a,ZS],['1س',MT.b,ZS],['4س',MT.c,ZS],['يومي',MT.d,ZLg]],V=fr.map(([n,k,p])=>k?fv(k,p):null);
+ if(!V.some(Boolean)||K.length<60)return;
+ const names=V.find(Boolean).map(x=>x[0]);let tot=0,cnt=0,h='<div class="hm"><b></b>'+fr.map(x=>`<b>${x[0]}</b>`).join('');
+ const rowS=names.map(()=>0);
+ names.forEach((nm,ri)=>{h+=`<span>${nm}</span>`;V.forEach(v=>{if(!v){h+='<div class="hc hn">-</div>';return}const x=v[ri][1];tot+=x;cnt++;rowS[ri]+=x;h+=`<div class="hc ${x>0?'hu':x<0?'hd':'hn'}">${x>0?'▲':x<0?'▼':'●'}</div>`})});
+ h+='<span><b>المجموع</b></span>'+V.map(v=>{if(!v)return '<div class="hc hn">-</div>';const s=v.reduce((a,x)=>a+x[1],0);return `<div class="hc ${s>2?'hu':s<-2?'hd':'hn'}">${s>0?'+':''}${s}</div>`}).join('')+'</div>';
+ $('heatb').innerHTML=h;
+ const conf=cnt?tot/cnt:0;G.conf=conf;const cs=confS(K),n=K.length;drawConf(cs);
+ const agree=names.filter((nm,i)=>Math.abs(rowS[i])>=V.filter(Boolean).length&&V.filter(Boolean).length>=3).map((nm,i)=>nm);
+ const ag=names.map((nm,i)=>[nm,rowS[i]]).filter(x=>Math.abs(x[1])>=V.filter(Boolean).length&&V.filter(Boolean).length>=3);
+ const avg=(a,b)=>{const t=cs.slice(a,b).filter(x=>x!=null);return t.length?t.reduce((x,y)=>x+y,0)/t.length:0},cur=cs[n-1]||0,tr=avg(n-5,n)-avg(n-15,n-5);
+ let cross=null;for(let i=n-2;i>40;i--){if(cs[i]!=null&&cs[i]*cur<0){cross=n-1-i;break}}
+ const w40=K.slice(-40),pmax=Math.max(...w40.map(k=>k.c)),pmin=Math.min(...w40.map(k=>k.c)),last=K[n-1].c,cw=cs.slice(-40).filter(x=>x!=null);
+ let div='';if(last>=pmax*.985&&cw.length&&Math.max(...cw)-cur>.3)div='تباعد سلبي: السعر قرب قمته لكن توافق المؤشرات ضعف، وهذا يسبق تراجعاً غالباً.';
+ else if(last<=pmin*1.015&&cw.length&&cur-Math.min(...cw)>.3)div='تباعد إيجابي: السعر قرب قاعه لكن المؤشرات تتحسن، وهذا يسبق ارتداداً غالباً.';
+ const lab=conf>=.5?['توافق صعودي قوي','up']:conf>=.2?['توافق صعودي','up']:conf<=-.5?['توافق هبوطي قوي','dn']:conf<=-.2?['توافق هبوطي','dn']:['لا توافق (تضارب)',''];
+ $('heatt').innerHTML=`<p class="verdict ${lab[1]}">${lab[0]}: ${(conf*100).toFixed(0)}%</p>
+ <div class="kv"><span>توافق اللحظة (على الإطار المعروض ${iv})</span><b class="${cur>0?'up':cur<0?'dn':''}">${(cur*100).toFixed(0)}% · ${tr>.05?'يتحسن':tr<-.05?'يضعف':'ثابت'}</b></div>
+ ${cross!=null?`<div class="kv"><span>آخر انقلاب في التوافق</span><b>منذ ${cross} شمعة</b></div>`:''}
+ ${ag.length?`<div class="kv"><span>مؤشرات متفقة في كل الأطر</span><b>${ag.map(x=>x[0]+(x[1]>0?' ▲':' ▼')).join('، ')}</b></div>`:''}
+ ${div?'<p class="warn">'+div+'</p>':''}
+ <p class="mute">كل خلية تصويت مؤشر في إطار، والعمود الأخير مجموع الإطار. الرسم السفلي يربط تصويت المؤشرات السبعة مع السعر شمعة بشمعة، فيظهر هل الحركة مدعومة بالمؤشرات أم لا.</p>`;
+}
+/* ===== محافظ الحيتان ===== */
+async function whFetch(){
+ const base=sym.replace('USDT',''),me=sym;let key='';try{key=localStorage.getItem('wak')||''}catch(e){}
+ let out={mode:'none'};
+ if(key){try{const j=await(await fetch(`https://api.whale-alert.io/v1/transactions?api_key=${encodeURIComponent(key)}&min_value=500000&start=${Math.floor(Date.now()/1000)-3600}&currency=${base.toLowerCase()}&limit=100`)).json();
+  if(j.result==='success'){const tx=j.transactions||[];let inn=0,outn=0,ni=0,no=0;
+   tx.forEach(t=>{const a=t.amount_usd||0,fe=t.from&&t.from.owner_type==='exchange',te=t.to&&t.to.owner_type==='exchange';if(te&&!fe){inn+=a;ni++}else if(fe&&!te){outn+=a;no++}});
+   const tot=inn+outn;out={mode:'wa',inn,outn,ni,no,n:tx.length,score:tot?(outn-inn)/tot:0,list:tx.slice(0,5)}}
+  else out={mode:'err',msg:j.message||'رفض المفتاح أو العملة غير مدعومة'}}catch(e){out={mode:'err',msg:'تعذر الاتصال (قد يمنع المتصفح الطلب)'}}}
+ else if(me==='BTCUSDT'){try{const j=await(await fetch('https://blockchain.info/unconfirmed-transactions?format=json&cors=true')).json();const big=(j.txs||[]).map(t=>({btc:t.out.reduce((s,o)=>s+o.value,0)/1e8})).filter(t=>t.btc>=100).sort((a,b)=>b.btc-a.btc);out={mode:'btc',n:big.length,tot:big.reduce((s,t)=>s+t.btc,0),top:big.slice(0,3),score:0}}catch(e){out={mode:'err',msg:'تعذر قراءة معاملات البيتكوين'}}}
+ if(me===sym){G.wh=out;whRender()}
+}
+function whRender(){
+ const q=G.wh||{mode:'none'};let h='';
+ const usd=x=>x>=1e6?f(x/1e6)+'M':x>=1e3?f(x/1e3)+'K':f(x);
+ if(q.mode==='wa'){
+  const v=q.score>.25?['السحب من المنصات يتفوق: تجميع (إيجابي)','up']:q.score<-.25?['الإيداع في المنصات يتفوق: ضغط بيع محتمل','dn']:['حركة متوازنة',''];
+  h=`<p class="verdict ${v[1]}">${v[0]}</p><div class="kv"><span>إيداع في المنصات (${q.ni})</span><b class="dn">$${usd(q.inn)}</b></div><div class="kv"><span>سحب من المنصات (${q.no})</span><b class="up">$${usd(q.outn)}</b></div><div class="kv"><span>إجمالي التحويلات الكبيرة (آخر ساعة)</span><b>${q.n}</b></div>`+q.list.map(t=>`<div class="mute">${f(t.amount)} ${esc(t.symbol||'')} ($${usd(t.amount_usd||0)}) · ${esc((t.from&&t.from.owner)||(t.from&&t.from.owner_type)||'?')} ← ${esc((t.to&&t.to.owner)||(t.to&&t.to.owner_type)||'?')}</div>`).join('')}
+ else if(q.mode==='btc')h=`<p class="verdict">معاملات بيتكوين كبيرة معلّقة: ${q.n}</p><div class="kv"><span>إجماليها (≥100 BTC لكل معاملة)</span><b>${f(q.tot)} BTC</b></div>`+q.top.map(t=>`<div class="mute">${f(t.btc)} BTC</div>`).join('')+'<p class="mute">لا تُظهر هذه القراءة اتجاه الحوت (بيع أم تجميع). لتحليل الإيداع والسحب من المنصات أدخل مفتاح Whale Alert.</p>';
+ else if(q.mode==='err')h=`<p class="warn">${q.msg}</p>`;
+ else h='<div class="mute">تتبع محافظ هذه العملة يحتاج مفتاح Whale Alert المجاني (الخانة أدناه). بدونه استخدم بطاقة "تتبع السيولة اللحظي" لحيتان المنصة، أو زر "تقرير شامل" للذكاء الاصطناعي.</div>';
+ $('whb').innerHTML=h;try{finalRender()}catch(e){}
+}
+$('waok').onclick=()=>{try{localStorage.setItem('wak',$('wak').value.trim());$('wak').value=''}catch(e){}whFetch()};
+$('wadel').onclick=()=>{try{localStorage.removeItem('wak')}catch(e){}whFetch()};
+/* ===== الأحداث الكبرى ===== */
+const FOMC=['2026-10-28','2026-12-09','2027-01-27','2027-03-17','2027-04-28','2027-06-09','2027-07-28','2027-09-15','2027-10-27','2027-12-08'];
+function events(){
+ const now=Date.now(),ev=[],add=(t,n,imp)=>{if(t>now-6*36e5)ev.push({t,n,imp})};
+ FOMC.forEach(d=>add(Date.parse(d+'T18:00:00Z'),'قرار الفائدة FOMC + مؤتمر صحفي',3));
+ const d0=new Date();
+ for(let m=0;m<14;m++){const y=d0.getUTCFullYear(),mo=d0.getUTCMonth()+m;
+  let a=new Date(Date.UTC(y,mo,1,12,30));while(a.getUTCDay()!==5)a.setUTCDate(a.getUTCDate()+1);add(a.getTime(),'تقرير الوظائف الأمريكي NFP',2);
+  let b=new Date(Date.UTC(y,mo+1,0,8,0));while(b.getUTCDay()!==5)b.setUTCDate(b.getUTCDate()-1);const q=[2,5,8,11].includes(b.getUTCMonth());add(b.getTime(),q?'انتهاء عقود خيارات ربع سنوية (Deribit)':'انتهاء عقود خيارات شهرية (Deribit)',q?3:2)}
+ return ev.sort((a,b)=>a.t-b.t);
+}
+function evRender(){
+ const ev=events(),now=Date.now();let risk=0;
+ ev.forEach(e=>{const h=(e.t-now)/36e5;if(e.imp>=3&&h>-6&&h<30)risk=Math.max(risk,2);else if(e.imp>=2&&h>-3&&h<24)risk=Math.max(risk,1)});
+ CX.evRisk=risk;
+ const fmt=t=>new Date(t).toLocaleString('ar',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),
+  cd=t=>{const h=(t-now)/36e5;return h<0?'جارٍ الآن أو انتهى للتو':h<24?'بعد '+h.toFixed(1)+' ساعة':'بعد '+(h/24).toFixed(1)+' يوم'};
+ let o='<p class="verdict">الأحداث الكبرى والاقتصاد</p>';
+ if(risk==2)o+='<p class="warn"><b>تنبيه: حدث كبير خلال 30 ساعة (قرار الفيدرالي أو انتهاء عقود). توقّع تذبذباً حاداً وكسوراً كاذبة، فقلّل الحجم أو انتظر ما بعد المؤتمر الصحفي.</b></p>';
+ o+='<div class="cols">'+ev.slice(0,8).map(e=>`<div class="ind"><div class="kv"><span>${e.n}</span><b class="${e.imp>=3?'dn':''}">${cd(e.t)}</b></div><div class="mute">${fmt(e.t)} بتوقيت جهازك</div></div>`).join('')+'</div>';
+ o+='<div class="mute">تقرير التضخم CPI يصدر عادة بين 10 و15 من كل شهر، فتحقق من تاريخه الدقيق.</div>';
+ if(CX.macro){const m=CX.macro,war=m.war,lvl=war>=8?['مرتفع','dn']:war>=3?['متوسط','warn']:['منخفض','up'];
+  o+=`<div class="kv"><span>خطر الأخبار الجيوسياسية (حرب وعقوبات)</span><b class="${lvl[1]}">${lvl[0]} (${war} من ${m.total} عنواناً)</b></div>`+Object.keys(m.cnt).map(k=>`<div class="kv"><span>${k}</span><b>${m.cnt[k]} عنواناً</b></div>`).join('')+`<div class="kv"><span>نبرة الأخبار الاقتصادية (آخر 24 ساعة)</span><b class="${m.score>.1?'up':m.score<-.1?'dn':''}">${m.score>.1?'إيجابية':m.score<-.1?'سلبية':'محايدة'}</b></div>`}
+ const hl=MAC.slice(0,6).map(a=>`<div class="hl">${esc((a.title||'').slice(0,110))} <span class="mute">· ${esc(a.src)}</span></div>`).join('');
+ if(hl)o+='<div class="mute">عناوين الاقتصاد والجيوسياسة (GDELT):</div>'+hl;
+ if(FED.length)o+='<div class="mute">بيانات الفيدرالي الأخيرة:</div>'+FED.map(a=>`<div class="hl">${esc(a.title)} <span class="mute">· ${esc(a.t||'')}</span></div>`).join('');
+ o+='<p class="mute">المصادر المفتوحة فقط (لا يمكن قراءة المواقع المدفوعة). للتغطية الأوسع والتحليلات العالمية اضغط "تقرير شامل".</p>';
+ $('evc').innerHTML=o;
+}
+/* ===== الحكم النهائي ===== */
+function finalRender(){
+ if(!K.length||!G.pk||!G.pk[8])return;
+ const bt=MT.btc,isB=sym==='BTCUSDT',btS=bt&&bt[0]?(bt[0].s+bt[1].s)/16:0;
+ const srs=G.srsi?G.srsi.score:0,cf=G.conf||0,wh=G.wh&&G.wh.score?G.wh.score:0,nw=NEWS.length?(CX.ns||0):0,mac=CX.macro?CX.macro.score:0,ev=CX.evRisk||0,last=K[K.length-1].c;
+ const HZ=[['مضاربة يومية (حتى 24 ساعة)',8,true],['احتفاظ أسبوعي',168,false],['احتفاظ شهري',720,false],['احتفاظ سنوي',8760,false]];
+ const pcs=p=>{const d=(p/last-1)*100;return (d>0?'+':'')+d.toFixed(1)+'%'};
+ let rows='',ms=[],tx=[];
+ HZ.forEach(([nm,h,sh])=>{
+  const pk=G.pk[h];if(!pk)return;
+  let m=pk.b+(sh?.15:.1)*srs+.2*cf*(sh?1:.5)+(isB?0:.2*btS)+(sh?.05:.1)*wh+(sh?.1:.15)*nw+.1*mac;m=Math.max(-1,Math.min(1,m));ms.push([m,h]);
+  const up=m>=0,t=up?pk.u:pk.d,iv2=up?pk.dn:pk.un;
+  let cp=Math.round(Math.min(92,Math.max(50,50+Math.abs(m)*85)));if(sh&&ev==2)cp-=12;else if(sh&&ev==1)cp-=6;
+  const inv=iv2||{p:last*(up?.97:1.03)};
+  tx.push(`${nm}: ${up?'صعود':'هبوط'} ثقة ${cp}% هدف ${f(t.p)}`);
+  rows+=`<div class="fr"><div class="kv"><span><b>${nm}</b></span><b class="${up?'up':'dn'}">${up?'شراء / احتفاظ ▲':'بيع / تجنّب الشراء ▼'} · ثقة ${cp}%</b></div>
+  <div class="mute">الهدف: ${f(t.p)} (${pcs(t.p)}) · يبطل القرار بإغلاق ${up?'تحت':'فوق'} ${f(inv.p)} (${pcs(inv.p)})</div></div>`});
+ if(!ms.length)return;
+ const wm=ms.reduce((s,[m,h])=>s+m*(h==8?.4:h==168?.3:h==720?.2:.1),0),dirUp=wm>=0,main=G.pk[8],tg=dirUp?main.u:main.d,iv3=dirUp?main.dn:main.un;
+ const cp=Math.round(Math.min(92,Math.max(50,50+Math.abs(wm)*85)));
+ G.finTxt=tx.join(' | ');
+ $('final').innerHTML=`<p class="verdict" style="color:#2f6bd8">الحكم النهائي بعد جمع كل التحليلات</p>
+ <div class="redline">${dirUp?'▲ اتجاه السوق: صاعد':'▼ اتجاه السوق: هابط'} — ${dirUp?'الهدف':'الهبوط إلى'} ${f(tg.p)} (${pcs(tg.p)})، يبطل بإغلاق ${dirUp?'تحت':'فوق'} ${f((iv3||{p:last}).p)} — ثقة ${cp}%</div>
+ ${rows}
+ ${ev==2?'<p class="warn"><b>تنبيه: حدث كبير قريب (قرار الفيدرالي أو انتهاء عقود). خفّضت الثقة للمضاربة اليومية، وقلّل حجمك.</b></p>':''}
+ <p class="mute">يجمع القرار: المؤشرات والأطر الثلاثة، وSRSI، وخريطة التوافق، والسيولة وحيتان المنصة، ومحافظ الحيتان إن فعّلت المفتاح، وسياق BTC، والأخبار، وأحداث الاقتصاد. القرار حاسم للتنفيذ، لكن الثقة تقدير وليست يقيناً، فالتزم بمستوى الإبطال ولا تخاطر بأكثر من 1%. ليست نصيحة مالية. في السوق الفوري، "بيع" تعني خروجاً أو تجنب الشراء.</p>`;
+}
+let lastSlow=0;
+function slow(force){const t=Date.now();if(!force&&t-lastSlow<4000)return;lastSlow=t;try{heatRender()}catch(e){}try{srsiRender()}catch(e){}try{finalRender()}catch(e){}}
+try{evRender()}catch(e){}
 function analyze(){
  if(K.length<60)return;
- try{liq()}catch(e){}try{mtfRender()}catch(e){}try{zzRender()}catch(e){}try{sumRender()}catch(e){}
+ try{liq()}catch(e){}try{mtfRender()}catch(e){}try{zzRender()}catch(e){}slow();try{sumRender()}catch(e){}
  const n=K.length,c=K.map(x=>x.c),h=K.map(x=>x.h),l=K.map(x=>x.l),v=K.map(x=>x.v),last=c[n-1];
  const e20=emaA(c,20),e50=emaA(c,50),m12=emaA(c,12),m26=emaA(c,26);
  const macd=m12.map((x,i)=>x-m26[i]),sg=emaA(macd,9),hist=macd[n-1]-sg[n-1];
@@ -641,12 +822,14 @@ function connect(){
  ws.onmessage=e=>{const m=JSON.parse(e.data);if(!m.topic)return;
   if(m.topic.startsWith('tickers.')){const d=m.data,t=T[d.symbol]||{};if(d.lastPrice)t.c=+d.lastPrice;if(d.price24hPcnt)t.p=+d.price24hPcnt*100;T[d.symbol]=t;refresh()}
   else if(m.topic.startsWith('kline.')){const k=m.data[0],n={t:+k.start,o:+k.open,h:+k.high,l:+k.low,c:+k.close,v:+k.volume},l=K[K.length-1];if(!l)return;l.t==n.t?K[K.length-1]=n:K.push(n);refresh()}}}
-async function select(s){sym=s;P=null;OB=null;FIB=[];EX={};LQ=[];MT={};G={};renderWatch();try{await loadK();ob().then(analyze);ex().then(analyze);mtf();flowFetch();ctx();connect()}catch(e){st(false,'تعذر الاتصال بـ Bybit (قد تكون محجوبة، جرّب VPN)')}}
+async function select(s){sym=s;P=null;OB=null;FIB=[];EX={};LQ=[];MT={};G={};renderWatch();try{await loadK();ob().then(analyze);ex().then(analyze);mtf();flowFetch();ctx();whFetch();connect()}catch(e){st(false,'تعذر الاتصال بـ Bybit (قد تكون محجوبة، جرّب VPN)')}}
 (async()=>{try{await loadTickers()}catch(e){st(false,'تعذر الاتصال بـ Bybit (قد تكون محجوبة، جرّب VPN)');renderWatch();return}
  const first=W.find(s=>T[s]);renderWatch();if(first)select(first)})();
 setInterval(()=>{if(sym)ex()},20000);
 setInterval(()=>{if(sym)mtf()},60000);
 setInterval(()=>{if(sym)flowFetch()},8000);
+setInterval(()=>{if(sym)whFetch()},120000);
+setInterval(evRender,600000);
 setInterval(()=>{if(sym)ctx()},300000);
 setInterval(async()=>{if(sym){await ob();analyze();draw()}},8000);
 addEventListener('resize',draw);
