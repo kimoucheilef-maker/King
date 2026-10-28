@@ -8,54 +8,53 @@
 <link rel="icon" href="icon-192.png">
 <title>Bybit برو ماكس</title>
 <style>
-:root{--bg:#eef2f6;--page:#3f73c8;--card:#fff;--ink:#14202e;--mute:#5b6b7c;--line:#d5dde6;--up:#0b8f6a;--dn:#c23a3a;--acc:#1f4fd6;--warn:#b7791f}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1620;--page:#1f3f78;--card:#18222f;--ink:#e8eef5;--mute:#93a3b5;--line:#2a3747;--up:#35c796;--dn:#f07575;--acc:#7da2ff;--warn:#e3b45a}}
+:root{--bg:#f3f6fb;--page:#2a5db8;--card:#ffffff;--ink:#0b1626;--mute:#3f4f66;--line:#c3cfe0;--up:#07703f;--dn:#b3211b;--acc:#1646b8;--warn:#875000}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--page);color:var(--ink);font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",system-ui,sans-serif;line-height:1.5;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+body{margin:0;min-height:100vh;background:var(--page);color:var(--ink);font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",system-ui,sans-serif;font-size:17px;line-height:1.55;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
 main{max-width:none;margin:0;padding:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:10px;align-content:start}
 .wide,.watch,main>p.mute{grid-column:1/-1}
 html{min-height:100%}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:0}
+.card{background:var(--card);border:1px solid #9fb0c8;border-radius:12px;padding:12px;margin:0}
 .watch{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px}
 .w{flex:0 0 auto;min-width:112px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 10px;position:relative}
 .w.on{border-color:var(--acc)}.w b,.w div{direction:ltr;display:block;text-align:right}
 .w i{position:absolute;top:2px;left:6px;color:var(--mute);font-style:normal;font-size:16px}
 .top{display:flex;justify-content:space-between;align-items:baseline}
 .price{font-size:30px;font-weight:700;direction:ltr;text-align:right}
-.up{color:var(--up)}.dn{color:var(--dn)}.mute{color:var(--mute);font-size:13px}
+.up{color:var(--up)}.dn{color:var(--dn)}.mute{color:var(--mute);font-size:14.5px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--dn);margin-inline-end:6px}.dot.ok{background:var(--up)}
 .iv{display:flex;gap:6px;margin:8px 0}
-.iv button,.add button{padding:8px 0;border:1px solid var(--line);background:none;color:var(--mute);border-radius:8px;font:inherit}
+.iv button,.add button{padding:8px 0;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;font:inherit;font-weight:600}
 .iv button{flex:1}.iv button.on{background:var(--acc);border-color:var(--acc);color:#fff}
 canvas{width:100%;height:clamp(300px,52vh,640px);display:block;direction:ltr}
-.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv b{direction:ltr}
-.verdict{font-size:20px;font-weight:700;margin:0 0 4px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv b{direction:ltr}
+.verdict{font-size:21px;font-weight:800;margin:0 0 6px}
 .add{display:flex;gap:8px}.add input{flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr}.add button{padding:10px 16px;background:var(--acc);color:#fff;border-color:var(--acc)}
 .warn{color:var(--warn)}
-.sum{background:linear-gradient(135deg,#f1ee86,#9bd985);color:#14230f;border-color:#86c06c}
-.sum .kv{border-color:rgba(20,35,15,.18)}.sum .mute{color:#34452a}
-.sum .up{color:#0a6a3c}.sum .dn{color:#a62323}.sum .warn{color:#7a5200}
+.sum{background:linear-gradient(135deg,#f7f4b0,#bfe8a6);color:#0f1c0b;border-color:#6fae52}
+.sum .kv{border-color:rgba(20,35,15,.18)}.sum .mute{color:#2c3a22}
+.sum .up{color:#065a30}.sum .dn{color:#951a1a}.sum .warn{color:#6b4200}
 .sum input{width:100%;padding:10px;border:1px solid #86c06c;border-radius:8px;background:#fff;color:#14230f;font:inherit;direction:ltr;text-align:right;margin-top:8px}
 .msg{padding:8px 10px;border-radius:10px;margin:6px 0;white-space:pre-wrap;font-size:15px}
 .msg.u{background:var(--acc);color:#fff;margin-inline-start:24px}
 .msg.a{background:var(--bg);border:1px solid var(--line);margin-inline-end:24px}
 #chat{max-height:300px;overflow:auto}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
-.chips button{padding:7px 10px;border:1px solid var(--line);background:none;color:var(--ink);border-radius:16px;font:inherit;font-size:14px}
+.chips button{padding:8px 12px;border:1px solid #9fb0c8;background:#fff;color:var(--ink);border-radius:16px;font:inherit;font-size:15px;font-weight:600}
 .ai2{display:flex;gap:8px}.ai2 input{flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
 .ai2 button{padding:10px 16px;background:var(--acc);color:#fff;border:0;border-radius:8px;font:inherit}
 .cp{width:100%;margin-top:8px;padding:10px;border:1px solid var(--acc);background:none;color:var(--acc);border-radius:8px;font:inherit}
-details{margin-top:8px;font-size:14px}details input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);margin:6px 0;direction:ltr}
+details{margin-top:8px;font-size:15px}details input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);margin:6px 0;direction:ltr}
 main>p.mute{color:#e8f0ff}
-.hm{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:3px;font-size:13px;align-items:center}
-.hc{text-align:center;padding:5px 0;border-radius:6px;color:#fff;font-weight:700}.hu{background:var(--up)}.hd{background:var(--dn)}.hn{background:#8a97a8}
+.hm{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:3px;font-size:14.5px;align-items:center}
+.hc{text-align:center;padding:5px 0;border-radius:6px;color:#fff;font-weight:700}.hu{background:var(--up)}.hd{background:var(--dn)}.hn{background:#56667c}
 #cv2{height:150px;margin-top:10px}
-.fin{border:3px solid #2f6bd8;background:linear-gradient(135deg,rgba(47,107,216,.16),rgba(47,107,216,.05))}
-.redline{margin:10px 0;padding:10px;border-top:3px solid #d32f2f;border-bottom:3px solid #d32f2f;color:#d32f2f;font-weight:800;font-size:17px;text-align:center}
+.fin{border:3px solid #1646b8;background:#eaf1ff;color:#0b1626}
+.redline{margin:10px 0;padding:10px;border-top:3px solid #c1121f;border-bottom:3px solid #c1121f;background:#fff;color:#b3000f;font-weight:800;font-size:18px;text-align:center}
 .fr{padding:6px 0;border-bottom:1px solid var(--line)}
 .wk input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);margin:6px 0;direction:ltr}
 .cols{columns:330px;column-gap:20px}.ind{break-inside:avoid;padding:5px 0;border-bottom:1px solid var(--line)}.ind .mute{margin-top:-2px}
-.zin{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:14px}.zin input{width:72px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr}
+.zin{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:15px}.zin input{width:72px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr}
 </style>
 </head>
 <body>
@@ -694,7 +693,7 @@ function finalRender(){
  const wm=ms.reduce((s,[m,h])=>s+m*(h==8?.4:h==168?.3:h==720?.2:.1),0),dirUp=wm>=0,main=G.pk[8],tg=dirUp?main.u:main.d,iv3=dirUp?main.dn:main.un;
  const cp=Math.round(Math.min(92,Math.max(50,50+Math.abs(wm)*85)));
  G.finTxt=tx.join(' | ');
- $('final').innerHTML=`<p class="verdict" style="color:#2f6bd8">الحكم النهائي بعد جمع كل التحليلات</p>
+ $('final').innerHTML=`<p class="verdict" style="color:#0f3d91">الحكم النهائي بعد جمع كل التحليلات</p>
  <div class="redline">${dirUp?'▲ اتجاه السوق: صاعد':'▼ اتجاه السوق: هابط'} — ${dirUp?'الهدف':'الهبوط إلى'} ${f(tg.p)} (${pcs(tg.p)})، يبطل بإغلاق ${dirUp?'تحت':'فوق'} ${f((iv3||{p:last}).p)} — ثقة ${cp}%</div>
  ${rows}
  ${ev==2?'<p class="warn"><b>تنبيه: حدث كبير قريب (قرار الفيدرالي أو انتهاء عقود). خفّضت الثقة للمضاربة اليومية، وقلّل حجمك.</b></p>':''}
